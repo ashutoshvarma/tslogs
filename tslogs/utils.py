@@ -25,9 +25,13 @@ def get_files_in_date_range(
             for f in dir_fs:
                 if match := re.match(r"\d{4}-\d{2}-\d{2}", f.name):
                     if (
-                        date_range[0].date
-                        <= datetime.fromisoformat(match.group())
-                        < date_range[1].date
+                        date_range[0].date()
+                        <= datetime.fromisoformat(match.group()).date()
+                        < date_range[1].date()
                     ):
                         files.append(f)
+        else:
+            files += dir_fs
+    print(files)
+
     return files
