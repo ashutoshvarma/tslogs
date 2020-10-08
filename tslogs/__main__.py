@@ -57,7 +57,8 @@ def init_argparse() -> argparse.ArgumentParser:
         type=datetime.fromisoformat,
         nargs="+",
         default=[],
-        help="Datetime range to filter",
+        help="Datetime range to filter (in ISO format, yyyy-mm-dd HH:MM:SS)",
+        metavar=("start_date", "end_date"),
     )
 
     output_group = parser.add_argument_group("Output")
@@ -82,8 +83,8 @@ def main(args=None):
     date_range = None
     if len(A.dates) == 1:
         date_range = []
-        date_range.insert(0, datetime(1, 1, 1, 1))
-        date_range.insert(1, A.dates[0])
+        date_range.insert(0, A.dates[0])
+        date_range.insert(1, datetime(9999, 1, 1, 1))
     elif len(A.dates) >= 2:
         date_range = A.dates[:2]
 
