@@ -3,13 +3,13 @@
 import logging
 import os
 import sys
-from dataclasses import dataclass, fields
+from dataclasses import dataclass, field, fields
 from datetime import datetime
 from logging import getLogger
 from os import PathLike
 from typing import Iterable, List, Optional, Tuple, Union
 
-from .utils import get_files_in_date_range
+from .utils import get_files_in_date_range, RE_ISO_DATE
 
 logger = logging.getLogger(__name__)
 
@@ -27,36 +27,32 @@ class LogLine:
     gpu_temp: float
     vid: float
     power: float
-    limits: Iterable[str]
+    limits: List[str] = field(default_factory=list)
 
 
-# def _parse_filters(filter_str: str, parsed_lines: List[LogLine]):
-#     allowed_tokens = [f.name for f in fields(LogLine)]
-#     comp_tokens = ["<", "<=", "=", ">", ">="]
-#     result_dict = {}
+def is_valid_log_file(line: str) -> bool:
+    """
+    Check whether first line of file resembles throttlestop's log file
 
-#     for fltr in filter_str.split(";"):
-#         keys = fltr.split()
-#         # check for length
-#         if len(keys) != 3:
-#             logger.warning(f"ignoring filter string '{fltr}' as more than 3 token found")
-#             continue
-#         nprop = None
-#         ncomp = None
-#         value = None
-#         for k in keys:
-#             if k in allowed_tokens:
-#                 nprop = k
-#             elif k in comp_tokens:
-#                 ncomp = k
-#             else:
-#                 try:
-#                     value = float(k)
-#                 except ValueError:
-#                     pass
-#         if not all([nprop, ncomp, value]):
-#             logger.warning(f"ignoring filter string '{fltr}', cannot parse properly")
-#             continue
+    If line is valid log line
+    >>> is_valid_log_file("2020-08-21  07:00:02  ........")
+    True
+
+    If line is log header
+    >>> is_valid_log_file("   DATE       TIME    MULTI   C0% ....")
+    True
+
+    >>> is_valid_log_file("abc abc")
+    False
+
+    >>> is_valid_log_file("` DATE")
+    False
+
+    >>> is_valid_log_file("")
+    False
+    """
+    line = line.split()
+    return bool(len(line) > 0 and (("DATE" in line[0]) or RE_ISO_DATE.match(line[0])))
 
 
 def _parse_log_lines(lines: List[str]) -> List[LogLine]:
@@ -64,25 +60,14 @@ def _parse_log_lines(lines: List[str]) -> List[LogLine]:
     data = [l.split() for l in lines if not "DATE" in l]
 
     for line in data:
-        # date and time
-        dt = datetime.strptime(" ".join(line[:2]), "%Y-%m-%d %H:%M:%S")
-        # (
-        #     multi,
-        #     c0,
-        #     clock_mod,
-        #     chip_mod,
-        #     battery_mw,
-        #     cpu_temp,
-        #     gpu_mhz,
-        #     gpu_temp,
-        #     vid,
-        #     power,
-        # ) = [float(i) for i in line[2:12]]
-
-        # limits
-        limits = line[12:]
-
-        loglines.append(LogLine(dt, *[float(i) for i in line[2:12]], limits=limits))
+        try:
+            # date and time
+            dt = datetime.strptime(" ".join(line[:2]), "%Y-%m-%d %H:%M:%S")
+            # limits
+            limits = line[12:]
+            loglines.append(LogLine(dt, *[float(i) for i in line[2:12]], limits=limits))
+        except Exception as ex:
+            logger.exception("failed to parse line - {line}")
     logger.debug(f"{len(loglines)} parsed.")
     return loglines
 
@@ -95,8 +80,12 @@ def parse_log(
     for file_path in files:
         logger.debug(f"loading file {str(file_path)}")
         with open(file_path, "r") as fp:
-            lines += fp.read().splitlines()
-    
+            if is_valid_log_file(fp.readline()):
+                fp.seek(0)
+                lines += fp.readlines()
+            else:
+                logger.debug(f"ignoring {file_path}")
+
     parsed = _parse_log_lines(lines)
     if date_range:
         parsed = [p for p in parsed if date_range[0] <= p.time < date_range[1]]
