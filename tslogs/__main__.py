@@ -70,6 +70,13 @@ def init_argparse() -> argparse.ArgumentParser:
         help="Output file path, default is '-' (stdout)",
         metavar="file",
     )
+    output_group.add_argument(
+        "--indent",
+        type=int,
+        default=4,
+        help="indent value for json output, default is 4",
+        metavar="value",
+    )
 
     parser.add_argument(
         "--quiet", "-q", action="store_true", default=False, help="Run in silent mode"
@@ -113,11 +120,11 @@ def main(args=None):
         content = "NotImplemented" + os.linesep
         pass
     elif A.json:
-        content = json.dumps([asdict(l) for l in parsed], default=str, indent=4)
+        content = json.dumps([asdict(l) for l in parsed], default=str, indent=A.indent)
     else:
         if len(parsed) > 0:
             content = (
-                json.dumps(asdict(get_stats(parsed)), default=str, indent=4)
+                json.dumps(asdict(get_stats(parsed)), default=str, indent=A.indent)
                 + os.linesep
             )
         else:
