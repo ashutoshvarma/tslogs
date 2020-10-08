@@ -3,6 +3,7 @@ import json
 import logging
 import os
 import sys
+import textwrap
 from ast import parse
 from dataclasses import asdict
 from datetime import datetime
@@ -53,7 +54,6 @@ def init_argparse() -> argparse.ArgumentParser:
     filter_group = parser.add_argument_group("Filter")
     filter_group.add_argument(
         "--dates",
-        "-d",
         type=datetime.fromisoformat,
         nargs="+",
         default=[],
@@ -71,6 +71,12 @@ def init_argparse() -> argparse.ArgumentParser:
         metavar="file",
     )
 
+    parser.add_argument(
+        "--quiet", "-q", action="store_true", default=False, help="Run in silent mode"
+    )
+    parser.add_argument(
+        "--version", "-v", action="store_true", default=False, help="print version info"
+    )
     return parser
 
 
@@ -79,6 +85,18 @@ def main(args=None):
 
     P = init_argparse()
     A = P.parse_args(args=args)
+
+    if A.version:
+        ver_str = f"""\
+            tslogs v{ver}
+            Copyright(c) 2020 Ashutosh Varma
+            Report Bugs - https://github.com/ashutoshvarma/tslogs/issues
+        """
+        logger.info(textwrap.dedent(ver_str))
+        return 0
+
+    if A.quiet:
+        logger.setLevel(logging.ERROR)
 
     date_range = None
     if len(A.dates) == 1:
