@@ -9,7 +9,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
-from tslogs import LogLine, get_stats, load_files, parse_log
+from tslogs import __version__ as ver
+from tslogs import get_stats, load_files
 
 logger = logging.getLogger(__name__)
 
@@ -34,15 +35,19 @@ def init_argparse() -> argparse.ArgumentParser:
         type=Path,
         default=None,
         nargs="+",
-        help="One or more paths to log dir or files.",
+        help="One or more paths to log dir or log files.",
     )
 
     mode_group = parser.add_mutually_exclusive_group()
     mode_group.add_argument(
-        "--json", "-j", action="store_true", default=False, help="Dump log data as json"
+        "--json",
+        "-j",
+        action="store_true",
+        default=False,
+        help="dump all parsed log data.",
     )
     mode_group.add_argument(
-        "--plot", "-p", action="store_true", default=False, help="Plot data"
+        "--plot", "-p", action="store_true", default=False, help="plot data"
     )
 
     filter_group = parser.add_argument_group("Filter")
@@ -57,7 +62,12 @@ def init_argparse() -> argparse.ArgumentParser:
 
     output_group = parser.add_argument_group("Output")
     output_group.add_argument(
-        "--output", "-o", type=argparse.FileType("wb"), default=sys.stdout
+        "--output",
+        "-o",
+        type=argparse.FileType("wb"),
+        default=sys.stdout,
+        help="Output file path, default is '-' (stdout)",
+        metavar="file",
     )
 
     return parser
@@ -87,7 +97,10 @@ def main(args=None):
         content = json.dumps([asdict(l) for l in parsed], default=str, indent=4)
     else:
         if len(parsed) > 0:
-            content = json.dumps(asdict(get_stats(parsed)), default=str, indent=4) + os.linesep
+            content = (
+                json.dumps(asdict(get_stats(parsed)), default=str, indent=4)
+                + os.linesep
+            )
         else:
             content = ""
 
