@@ -1,23 +1,30 @@
 import argparse
 import json
+import logging
+import os
 import sys
 from ast import parse
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 
 from tslogs import LogLine, load_files, parse_log
 
-# from parse import LogLine, parse_log
+logger = logging.getLogger(__name__)
 
 
-# from thlogs.parse import LogLine
-# from thlogs.parse import LogLine
+def setup_logging() -> None:
+    logger = logging.getLogger(__name__)
+    handler = logging.StreamHandler()
+    # formatter = logging.Formatter('%(levelname)-8s %(message)s')
+    # handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
 
-def dump_json(lines: Iterable[LogLine]) -> str:
-    return json.dumps([asdict(l) for l in lines], default=str, indent=4)
+def _to_dict(lines: Iterable[Any]) -> str:
+    return [asdict(l) for l in lines]
 
 
 def init_argparse() -> argparse.ArgumentParser:
@@ -57,9 +64,10 @@ def init_argparse() -> argparse.ArgumentParser:
 
 
 def main(args=None):
+    setup_logging()
+
     P = init_argparse()
     A = P.parse_args(args=args)
-    print(A)
 
     date_range = None
     if len(A.dates) == 1:
@@ -70,6 +78,7 @@ def main(args=None):
         date_range = A.dates[:2]
 
     parsed = load_files(A.paths, date_range)
+    logger.info(f"{len(parsed)} logs parsed.")
 
     if A.json:
         dump = dump_json(parsed)

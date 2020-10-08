@@ -6,6 +6,9 @@ from re import match
 from typing import Iterable, List, Optional, Tuple, Union
 
 
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+
+
 __author__ = "Ashutosh Varma <ashutoshvarma11@live.com>"
 __license__ = "MIT"
 __version__ = (
