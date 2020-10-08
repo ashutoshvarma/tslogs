@@ -9,7 +9,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Iterable
 
-from tslogs import LogLine, load_files, parse_log
+from tslogs import LogLine, get_stats, load_files, parse_log
 
 logger = logging.getLogger(__name__)
 
@@ -80,18 +80,20 @@ def main(args=None):
     parsed = load_files(A.paths, date_range)
     logger.info(f"{len(parsed)} logs parsed.")
 
-    if A.json:
-        dump = dump_json(parsed)
-        if A.output == sys.stdout:
-            A.output.write(dump)
-        else:
-            A.output.write(dump.encode("utf-8"))
-    elif A.plot:
-        # Plot functions
+    if A.plot:
+        content = "NotImplemented" + os.linesep
         pass
+    elif A.json:
+        content = json.dumps([asdict(l) for l in parsed], default=str, indent=4)
     else:
-        # pritn info
-        pass
+        if len(parsed) > 0:
+            content = json.dumps(asdict(get_stats(parsed)), default=str, indent=4) + os.linesep
+        else:
+            content = ""
+
+    if A.output != sys.stdout:
+        content = content.encode("utf-8")
+    A.output.write(content)
 
 
 if __name__ == "__main__":

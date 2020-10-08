@@ -1,3 +1,4 @@
+import logging
 import re
 from datetime import datetime
 from os import PathLike
@@ -21,5 +22,6 @@ __version__ = (
 
 from .parse import load_files, parse_log, LogLine
 from .utils import get_files_in_date_range
+from .stats import get_stats
 
-__all__ = ["parse_log", "LogLine", "load_files"]
+__all__ = ["parse_log", "LogLine", "load_files", "get_stats"]
