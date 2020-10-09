@@ -73,7 +73,9 @@ def get_stats(loglines: Iterable[LogLine]) -> LogStats:
     time_elapsed = timedelta(seconds=len(loglines))
     # above_90 = [l.time for l in loglines if l.cpu_temp >= 90]
     time_above_90 = timedelta(seconds=sum(l.cpu_temp >= 90 for l in loglines))
-    percent_above_90 = (time_above_90.seconds / time_elapsed.seconds) * 100
+    percent_above_90 = (
+        time_above_90.total_seconds() / time_elapsed.total_seconds()
+    ) * 100
 
     avg_dict: Dict[str, float] = {}
     for f in fields(LogLine):
@@ -82,7 +84,7 @@ def get_stats(loglines: Iterable[LogLine]) -> LogStats:
                 sum(l.__dict__[f.name] for l in loglines) / count
             )
 
-    limits_stats = _get_limits_elasped(loglines, time_elapsed.seconds)
+    limits_stats = _get_limits_elasped(loglines, time_elapsed.total_seconds())
 
     return LogStats(
         time_range=(start_t, end_t),
