@@ -79,7 +79,7 @@ def parse_log(
     lines = []
     for file_path in files:
         logger.debug(f"loading file {str(file_path)}")
-        with open(file_path, "r") as fp:
+        with open(file_path, "r", encoding="utf-8", errors="ignore") as fp:
             if is_valid_log_file(fp.readline()):
                 fp.seek(0)
                 lines += fp.readlines()
