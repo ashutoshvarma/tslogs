@@ -16,8 +16,11 @@ def get_files_in_date_range(
     If file path is also given it will be included without matching.
     """
     files = []
+    if isinstance(paths, str):
+        paths = [paths]
     for path in paths:
         p = Path(path)
+        print(f"{p = }")
         dir_fs = []
         if p.is_dir():
             dir_fs = [f for f in p.iterdir() if f.is_file()]
