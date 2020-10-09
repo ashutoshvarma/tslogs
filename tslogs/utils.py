@@ -20,7 +20,6 @@ def get_files_in_date_range(
         paths = [paths]
     for path in paths:
         p = Path(path)
-        print(f"{p = }")
         dir_fs = []
         if p.is_dir():
             dir_fs = [f for f in p.iterdir() if f.is_file()]
