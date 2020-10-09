@@ -87,6 +87,54 @@ def init_argparse() -> argparse.ArgumentParser:
     return parser
 
 
+def print_version():
+    ver_str = f"""\
+        tslogs v{__version__}
+        Copyright(c) 2020 Ashutosh Varma
+        Report Bugs - https://github.com/ashutoshvarma/tslogs/issues
+    """
+    logger.info(textwrap.dedent(ver_str))
+
+
+def dump_json(loglines: List[LogLine], indent: int, out_fp: argparse.FileType) -> None:
+    content = json.dumps([asdict(l) for l in loglines], default=str, indent=indent)
+    if "b" in out_fp.mode:
+        content = content.encode("utf-8")
+    out_fp.write(content + os.linesep)
+
+
+def print_stats(stats: LogStats):
+    dt_fmt = "%d-%b-%y %H:%M"
+    start_t: str = stats.time_range[0].strftime(dt_fmt)
+    end_t: str = stats.time_range[1].strftime(dt_fmt)
+    logger.info(f"Logs from {start_t} to {end_t}")
+    logger.info(f"Total Log time - {stats.time_elapsed}")
+
+    logger.info(f"{os.linesep}CPU Stats")
+    logger.info(f"Average CPU Temp - {stats.avg_cpu_temp:.2f}°C")
+    logger.info(
+        f"Average CPU Multiplier - {stats.avg_multi:.2f} (~ {stats.avg_multi/10:.2f} GHz)"
+    )
+    logger.info(
+        f"Time above 90°C - {stats.time_above_90} (~ {stats.percent_above_90:.2f}%)"
+    )
+
+    logger.info(f"{os.linesep}GPU Stats")
+    logger.info(f"Average GPU Temp - {stats.avg_gpu_temp:.2f}°C")
+    logger.info(f"Average GPU MHz - {stats.avg_gpu_mhz:.2f} MHz")
+
+    logger.info(f"{os.linesep}Power Stats")
+    logger.info(f"Average Power - {stats.avg_power:.2f} W")
+    logger.info(f"Average VID - {stats.avg_vid:.4f} V")
+    logger.info(f"Average Battery Voltage - {stats.avg_battery_mw:.2f} mW")
+
+    logger.info(f"{os.linesep}Limits Stats")
+    for lm_stat in stats.limits:
+        logger.info(
+            f"{lm_stat.limit} Limit - {lm_stat.total_secs} sec (~ {lm_stat.percent_time:.2f}%)"
+        )
+
+
 def main(args=None):
     setup_logging()
 
@@ -94,20 +142,15 @@ def main(args=None):
     A = P.parse_args(args=args)
 
     if A.version:
-        ver_str = f"""\
-            tslogs v{ver}
-            Copyright(c) 2020 Ashutosh Varma
-            Report Bugs - https://github.com/ashutoshvarma/tslogs/issues
-        """
-        logger.info(textwrap.dedent(ver_str))
+        print_version()
         return 0
 
     if A.quiet:
         logger.setLevel(logging.ERROR)
 
-    date_range = None
+    # fix date range
+    date_range: List[datetime] = []
     if len(A.dates) == 1:
-        date_range = []
         date_range.insert(0, A.dates[0])
         date_range.insert(1, datetime(9999, 1, 1, 1))
     elif len(A.dates) >= 2:
@@ -117,22 +160,11 @@ def main(args=None):
     logger.info(f"{len(parsed)} logs parsed.")
 
     if A.plot:
-        content = "NotImplemented" + os.linesep
-        pass
+        raise NotImplementedError
     elif A.json:
-        content = json.dumps([asdict(l) for l in parsed], default=str, indent=A.indent)
+        dump_json(parsed, A.indent, A.output)
     else:
-        if len(parsed) > 0:
-            content = (
-                json.dumps(asdict(get_stats(parsed)), default=str, indent=A.indent)
-                + os.linesep
-            )
-        else:
-            content = ""
-
-    if A.output != sys.stdout:
-        content = content.encode("utf-8")
-    A.output.write(content)
+        print_stats(get_stats(parsed))
 
 
 if __name__ == "__main__":
