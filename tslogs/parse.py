@@ -9,7 +9,7 @@ from logging import getLogger
 from os import PathLike
 from typing import Iterable, List, Optional, Tuple, Union
 
-from .utils import get_files_in_date_range, RE_ISO_DATE
+from .utils import RE_ISO_DATE, get_files_in_date_range
 
 logger = logging.getLogger(__name__)
 

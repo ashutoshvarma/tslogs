@@ -6,7 +6,6 @@ from pathlib import Path
 from re import match
 from typing import Iterable, List, Optional, Tuple, Union
 
-
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 
@@ -20,8 +19,7 @@ __version__ = (
 )
 
 
-from .parse import load_files, parse_log, LogLine
-from .utils import get_files_in_date_range
+from .parse import LogLine, load_files, parse_log
 from .stats import get_stats
 
 __all__ = ["parse_log", "LogLine", "load_files", "get_stats"]

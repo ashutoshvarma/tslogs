@@ -7,11 +7,13 @@ import textwrap
 from ast import parse
 from dataclasses import asdict
 from datetime import datetime
+from os import stat
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, List
 
-from tslogs import __version__ as ver
-from tslogs import get_stats, load_files
+from tslogs import __version__, get_stats, load_files
+from tslogs.parse import LogLine
+from tslogs.stats import LogStats
 
 logger = logging.getLogger(__name__)
 
@@ -23,10 +25,6 @@ def setup_logging() -> None:
     # handler.setFormatter(formatter)
     logger.addHandler(handler)
     logger.setLevel(logging.INFO)
-
-
-def _to_dict(lines: Iterable[Any]) -> str:
-    return [asdict(l) for l in lines]
 
 
 def init_argparse() -> argparse.ArgumentParser:

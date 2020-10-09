@@ -1,7 +1,8 @@
 from dataclasses import dataclass, fields
 from datetime import datetime, timedelta
-from tslogs.parse import LogLine
 from typing import Dict, Iterable, List, Tuple
+
+from tslogs.parse import LogLine
 
 
 @dataclass
