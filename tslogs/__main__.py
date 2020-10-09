@@ -108,8 +108,9 @@ def print_stats(stats: LogStats):
     logger.info(f"Logs from {start_t} to {end_t}")
     logger.info(f"Total Log time - {stats.time_elapsed}")
 
-    logger.info(f"{os.linesep}CPU Stats")
+    logger.info(f"{os.linesep}CPU Stats :-")
     logger.info(f"Average CPU Temp - {stats.avg_cpu_temp:.2f}°C")
+    logger.info(f"Max CPU Temp - {stats.max_cpu_temp:.2f}°C")
     logger.info(
         f"Average CPU Multiplier - {stats.avg_multi:.2f} (~ {stats.avg_multi/10:.2f} GHz)"
     )
@@ -117,20 +118,21 @@ def print_stats(stats: LogStats):
         f"Time above 90°C - {stats.time_above_90} (~ {stats.percent_above_90:.2f}%)"
     )
 
-    logger.info(f"{os.linesep}GPU Stats")
+    logger.info(f"{os.linesep}GPU Stats :-")
     logger.info(f"Average GPU Temp - {stats.avg_gpu_temp:.2f}°C")
     logger.info(f"Average GPU MHz - {stats.avg_gpu_mhz:.2f} MHz")
 
-    logger.info(f"{os.linesep}Power Stats")
+    logger.info(f"{os.linesep}Power Stats :-")
     logger.info(f"Average Power - {stats.avg_power:.2f} W")
     logger.info(f"Average VID - {stats.avg_vid:.4f} V")
     logger.info(f"Average Battery Voltage - {stats.avg_battery_mw:.2f} mW")
 
-    logger.info(f"{os.linesep}Limits Stats")
-    for lm_stat in stats.limits:
-        logger.info(
-            f"{lm_stat.limit} Limit - {lm_stat.total_secs} sec (~ {lm_stat.percent_time:.2f}%)"
-        )
+    if len(stats.limits) > 0:
+        logger.info(f"{os.linesep}Limits Stats :-")
+        for lm_stat in stats.limits:
+            logger.info(
+                f"{lm_stat.limit} Limit - {lm_stat.total_secs} sec (~ {lm_stat.percent_time:.2f}%)"
+            )
 
 
 def main(args=None):

@@ -17,6 +17,7 @@ class LogStats:
     time_range: Tuple[datetime, datetime]
     time_elapsed: timedelta
 
+    max_cpu_temp: int
     time_above_90: timedelta
     percent_above_90: float
 
@@ -63,6 +64,8 @@ def _get_limits_elasped(loglines: Iterable[LogLine], total_sec: int) -> List[Lim
 
 
 def get_stats(loglines: Iterable[LogLine]) -> LogStats:
+    #FIXME: extremely unoptimised implementaion, lost of repetaed
+    #       loops. Change to a single for loop 
     count = len(loglines)
     if count <= 0:
         raise ValueError(f"'loglines' cannot be empty.")
@@ -78,6 +81,8 @@ def get_stats(loglines: Iterable[LogLine]) -> LogStats:
         time_above_90.total_seconds() / time_elapsed.total_seconds()
     ) * 100
 
+    max_cpu_temp = max(loglines, key=lambda x: x.cpu_temp).cpu_temp
+
     avg_dict: Dict[str, float] = {}
     for f in fields(LogLine):
         if f.type == float:
@@ -90,6 +95,7 @@ def get_stats(loglines: Iterable[LogLine]) -> LogStats:
     return LogStats(
         time_range=(start_t, end_t),
         time_elapsed=time_elapsed,
+        max_cpu_temp=max_cpu_temp,
         time_above_90=time_above_90,
         percent_above_90=percent_above_90,
         limits=limits_stats,
