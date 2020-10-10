@@ -8,7 +8,7 @@ import textwrap
 from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
-from typing import List, Union
+from typing import Any, List, Union
 
 import colorama
 from colorama.ansi import Fore, Style
@@ -139,41 +139,54 @@ def dump_json(loglines: List[LogLine], indent: int, out_fp: argparse.FileType) -
 
 
 def print_stats(stats: LogStats):
+    def _print(name: str, value: Any, meta: str = "", value_color=""):
+        color = value_color
+        if meta:
+            logger.info(f"- {name:30}: {BOLD}{color}{str(value):10} ({meta}){RESET}")
+        else:
+            logger.info(f"- {name:30}: {BOLD}{color}{str(value):10}{RESET}")
+
+    def _print_sub_head(name: str):
+        logger.info(f"{DIM}{YELLOW}{name}{RESET}")
+
+    def nl():
+        logger.info("")
+
     dt_fmt = "%d-%b-%y %H:%M"
     start_t: str = stats.time_range[0].strftime(dt_fmt)
     end_t: str = stats.time_range[1].strftime(dt_fmt)
-    logger.info(f"{BLUE}{BOLD}Logs from {start_t} to {end_t} {RESET}")
-    logger.info(f"Total Log time - {stats.time_elapsed} {RESET}")
-
-    logger.info(f"{os.linesep}{BOLD}CPU Stats :- {RESET}")
-    logger.info(f"Average CPU Temp - {BOLD}{stats.avg_cpu_temp:.2f}°C {RESET}")
-    logger.info(f"Max CPU Temp - {BOLD}{stats.max_cpu_temp:.2f}°C {RESET}")
-    logger.info(
-        f"Average CPU Multiplier - {BOLD}{stats.avg_multi:.2f} "
-        f"(~ {stats.avg_multi/10:.2f} GHz) {RESET}"
+    _print_sub_head(f"Logs from {BOLD}{start_t}{DIM} to {BOLD}{end_t}")
+    _print("Total Log time", stats.time_elapsed)
+    nl()
+    _print_sub_head("CPU Stats")
+    _print("Average CPU Temp", f"{stats.avg_cpu_temp:.2f}°C")
+    _print("Max CPU Temp", f"{stats.max_cpu_temp:.2f}°C", value_color=RED)
+    _print(
+        "Average CPU Multiplier",
+        f"{stats.avg_multi:.2f}",
+        f"~ {stats.avg_multi/10:.2f} GHz",
     )
-    logger.info(
-        f"Time above 90°C - {BOLD}{RED}{stats.time_above_90} "
-        f"(~ {stats.percent_above_90:.2f}%) {RESET}"
+    _print(
+        "Time above 90°C", stats.time_above_90, f"{stats.percent_above_90:.2f}%", RED
     )
-
-    logger.info(f"{os.linesep}{BOLD}GPU Stats :- {RESET}")
-    logger.info(f"Average GPU Temp - {BOLD}{stats.avg_gpu_temp:.2f}°C {RESET}")
-    logger.info(f"Average GPU MHz - {BOLD}{stats.avg_gpu_mhz:.2f} MHz {RESET}")
-
-    logger.info(f"{os.linesep}{BOLD}Power Stats :- {RESET}")
-    logger.info(f"Average Power - {BOLD}{stats.avg_power:.2f} W {RESET}")
-    logger.info(f"Average VID - {BOLD}{stats.avg_vid:.4f} V {RESET}")
-    logger.info(
-        f"Average Battery Voltage - {BOLD}{stats.avg_battery_mw:.2f} mW {RESET}"
-    )
+    nl()
+    _print_sub_head("GPU Stats")
+    _print("Average GPU Temp", f"{stats.avg_gpu_temp:.2f}°C")
+    _print("Average GPU MHz", f"{stats.avg_gpu_mhz:.2f} MHz")
+    nl()
+    _print_sub_head("Power Stats")
+    _print("Average Power", f"{stats.avg_power:.2f} W")
+    _print("Average VID", f"{stats.avg_vid:.4f} V")
+    _print("Average Battery Voltage", f"{stats.avg_battery_mw:.2f} mW")
 
     if len(stats.limits) > 0:
-        logger.info(f"{os.linesep}{BOLD}Limits Stats :- {RESET}")
+        nl()
+        _print_sub_head("Limits Stats")
         for lm_stat in stats.limits:
-            logger.info(
-                f"{lm_stat.limit} Limit - {BOLD}{lm_stat.total_secs} "
-                f"sec (~ {lm_stat.percent_time:.2f}%) {RESET}"
+            _print(
+                f"{lm_stat.limit} Limit",
+                f"{lm_stat.total_secs} sec",
+                f"~ {lm_stat.percent_time:.2f}%",
             )
 
 
