@@ -1,10 +1,11 @@
+import math
+from dataclasses import dataclass, field, fields
 from typing import Any, Dict, List, Literal, Optional, Tuple, Union, get_args
-from tslogs.parse import LogLine
+
 import matplotlib.pyplot as plt
 import numpy as np
-from dataclasses import dataclass, fields, field
-import math
 
+from tslogs.parse import LogLine
 
 PLOT_MODE = {
     "plot": plt.plot,
@@ -57,11 +58,10 @@ def normalize_data(
     x_array = np.empty((len(inputs), len(times)))
     x_array[:] = np.nan
 
-    for l in logs:
-        ltime = l.time
-        idx = int(((l.time - s_time.item()).total_seconds()) / interval)
+    for log in logs:
+        idx = int(((log.time - s_time.item()).total_seconds()) / interval)
         for i, inp in enumerate(inputs):
-            x_array[i][idx] = getattr(l, inp.name)
+            x_array[i][idx] = getattr(log, inp.name)
 
     if smooth_span:
         for i in range(len(x_array)):

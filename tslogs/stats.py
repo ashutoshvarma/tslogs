@@ -68,7 +68,7 @@ def get_stats(loglines: Iterable[LogLine]) -> LogStats:
     #       loops. Change to a single for loop
     count = len(loglines)
     if count <= 0:
-        raise ValueError(f"'loglines' cannot be empty.")
+        raise ValueError("'loglines' cannot be empty.")
 
     start_t = min(loglines, key=lambda x: x.time).time
     end_t = max(loglines, key=lambda x: x.time).time
@@ -76,7 +76,7 @@ def get_stats(loglines: Iterable[LogLine]) -> LogStats:
     # logs are print per second
     time_elapsed = timedelta(seconds=len(loglines))
     # above_90 = [l.time for l in loglines if l.cpu_temp >= 90]
-    time_above_90 = timedelta(seconds=sum(l.cpu_temp >= 90 for l in loglines))
+    time_above_90 = timedelta(seconds=sum(log.cpu_temp >= 90 for log in loglines))
     percent_above_90 = (
         time_above_90.total_seconds() / time_elapsed.total_seconds()
     ) * 100
@@ -87,7 +87,7 @@ def get_stats(loglines: Iterable[LogLine]) -> LogStats:
     for f in fields(LogLine):
         if f.type == float:
             avg_dict[f"avg_{f.name}"] = (
-                sum(l.__dict__[f.name] for l in loglines) / count
+                sum(log.__dict__[f.name] for log in loglines) / count
             )
 
     limits_stats = _get_limits_elasped(loglines, time_elapsed.total_seconds())

@@ -1,10 +1,7 @@
 import logging
-import re
-from datetime import datetime
-from os import PathLike
-from pathlib import Path
-from re import match
-from typing import Iterable, List, Optional, Tuple, Union
+
+from .parse import LogLine, load_files, parse_log
+from .stats import get_stats
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
@@ -18,8 +15,5 @@ __version__ = (
     .strip()
 )
 
-
-from .parse import LogLine, load_files, parse_log
-from .stats import get_stats
 
 __all__ = ["parse_log", "LogLine", "load_files", "get_stats"]

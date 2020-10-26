@@ -1,9 +1,8 @@
-from os import PathLike
 import re
 from datetime import datetime
+from os import PathLike
 from pathlib import Path
 from typing import Iterable, Tuple, Union
-
 
 RE_ISO_DATE = re.compile(r"\d{4}-\d{2}-\d{2}")
 

@@ -5,7 +5,7 @@ import logging
 import os
 import sys
 import textwrap
-from dataclasses import asdict, fields
+from dataclasses import asdict
 from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Union
@@ -15,7 +15,7 @@ import matplotlib.pyplot as plt
 from colorama.ansi import Fore, Style
 
 from tslogs import __version__
-from tslogs.data_ploting import ALLOWED_INPUTS, PLOT_MODE, PlotInput, plot_logs
+from tslogs.data_ploting import ALLOWED_INPUTS, PlotInput, plot_logs
 from tslogs.parse import LogLine, load_files
 from tslogs.stats import LogStats, get_stats
 
@@ -74,7 +74,7 @@ class CustomFormatter(argparse.HelpFormatter):
 def setup_logging() -> None:
     logger = logging.getLogger(__name__)
 
-    log_stream = f = io.TextIOWrapper(
+    log_stream = io.TextIOWrapper(
         sys.stdout.buffer, encoding="utf-8", write_through=True
     )
     handler = logging.StreamHandler(wrap_stream_for_windows(log_stream))
@@ -114,7 +114,10 @@ def init_argparse() -> argparse.ArgumentParser:
         "-p",
         nargs="*",
         choices=ALLOWED_INPUTS,
-        help="Plot given the logs attributes (default: %(default)s). Allowed values are {%(choices)s}",
+        help=(
+            "Plot given the logs attributes (default: %(default)s)."
+            " Allowed values are {%(choices)s}"
+        ),
         metavar="INPUTS",
     )
 
@@ -169,7 +172,7 @@ def print_version():
 
 
 def dump_json(loglines: List[LogLine], indent: int, out_fp: argparse.FileType) -> None:
-    content = json.dumps([asdict(l) for l in loglines], default=str, indent=indent)
+    content = json.dumps([asdict(log) for log in loglines], default=str, indent=indent)
     if "b" in out_fp.mode:
         content = content.encode("utf-8")
     out_fp.write(content + os.linesep)

@@ -1,11 +1,8 @@
 #!/usr/bin/env python
 
 import logging
-import os
-import sys
-from dataclasses import dataclass, field, fields
+from dataclasses import dataclass, field
 from datetime import datetime
-from logging import getLogger
 from os import PathLike
 from typing import Iterable, List, Optional, Tuple, Union
 
@@ -57,7 +54,7 @@ def is_valid_log_file(line: str) -> bool:
 
 def _parse_log_lines(lines: List[str]) -> List[LogLine]:
     loglines = []
-    data = [l.split() for l in lines if not "DATE" in l]
+    data = [log.split() for log in lines if "DATE" not in log]
 
     for line in data:
         try:
@@ -66,7 +63,7 @@ def _parse_log_lines(lines: List[str]) -> List[LogLine]:
             # limits
             limits = line[12:]
             loglines.append(LogLine(dt, *[float(i) for i in line[2:12]], limits=limits))
-        except Exception as ex:
+        except Exception:
             logger.exception("failed to parse line - {line}")
     logger.debug(f"{len(loglines)} parsed.")
     return loglines
