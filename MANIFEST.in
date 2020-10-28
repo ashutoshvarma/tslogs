@@ -1,4 +1,6 @@
 include COPYING
 include README.md
 include tslogs/_version.txt
+include *.yaml
+include tox.ini
 recursive-exclude tests *
