@@ -15,7 +15,7 @@ def get_files_in_date_range(
     If file path is also given it will be included without matching.
     """
     files = []
-    if isinstance(paths, str):
+    if isinstance(paths, (str, Path)):
         paths = [paths]
     for path in paths:
         p = Path(path)
@@ -28,12 +28,13 @@ def get_files_in_date_range(
         if date_range:
             for f in dir_fs:
                 if match := RE_ISO_DATE.match(f.name):
-                    if (
-                        date_range[0].date()
-                        <= datetime.fromisoformat(match.group()).date()
-                        < date_range[1].date()
-                    ):
-                        files.append(f)
+                    try:
+                        fdate = datetime.fromisoformat(match.group()).date()
+                    except ValueError:
+                        pass
+                    else:
+                        if date_range[0].date() <= fdate < date_range[1].date():
+                            files.append(f)
         else:
             files += dir_fs
     return files
