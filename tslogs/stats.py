@@ -64,7 +64,7 @@ def _get_limits_elasped(loglines: Iterable[LogLine], total_sec: int) -> List[Lim
 
 
 def get_stats(loglines: Iterable[LogLine]) -> LogStats:
-    # FIXME: extremely unoptimised implementaion, lost of repetaed
+    # FIXME: extremely unoptimised implementaion, lots of repetaed
     #       loops. Change to a single for loop
     count = len(loglines)
     if count <= 0:
