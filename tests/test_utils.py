@@ -25,16 +25,15 @@ class TestUtils:
             f_path = valid_dir / fn
             f_path.touch()
             valid_paths.append(f_path)
-        assert get_files_in_date_range(valid_paths) == valid_paths
-        assert get_files_in_date_range(valid_dir) == valid_paths
+        assert len(get_files_in_date_range(valid_paths)) == len(valid_paths)
+        assert len(get_files_in_date_range(valid_dir)) == len(valid_paths)
 
         # use valid_dir as date_range is ignored for explict files (valid_paths)
-        assert (
+        assert len(
             get_files_in_date_range(
                 valid_dir, (datetime(2020, 10, 10), datetime(2020, 10, 12))
             )
-            == valid_paths[:2]
-        )
+        ) == len(valid_paths[:2])
 
     def test_invalid_get_files_in_date_range(self, tmp_path: Path):
         invalid_dir = tmp_path / "invalid"
