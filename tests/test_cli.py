@@ -5,14 +5,16 @@ import tslogs.cli as cli
 
 
 class TestArgsParser:
-    def test_args_parser(self, args_parser: argparse.ArgumentParser) -> None:
+    def test_args_parser(
+        self, args_parser: argparse.ArgumentParser, tmp_path: Path
+    ) -> None:
         # version & help
         args_parser.parse_args("--version")
         args_parser.parse_args("--help")
 
         p = args_parser.parse_args(
             "--json --interval 2 --smooth 10"
-            " --output output.jpg --indent 4 path".split()
+            f" --output {str(tmp_path / 'output.jpg')} --indent 4 path".split()
         )
         assert p.json is True
         assert p.interval == 2
