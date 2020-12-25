@@ -3,4 +3,5 @@ include README.md
 include tslogs/_version.txt
 include *.yaml
 include tox.ini
+recursive-include docs *.jpg
 recursive-exclude tests *
