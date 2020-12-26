@@ -133,8 +133,24 @@ def init_argparse() -> argparse.ArgumentParser:
     )
 
     plot_group = parser.add_argument_group("Plot Options")
-    plot_group.add_argument("--interval", "-I", type=_arg_check_positive, default=60)
-    plot_group.add_argument("--smooth", "-S", type=_arg_check_positive, default=2)
+    plot_group.add_argument(
+        "--interval",
+        "-I",
+        type=_arg_check_positive,
+        default=60,
+        help="Plot data frequency in seconds (default: 60)",
+    )
+    plot_group.add_argument(
+        "--smooth",
+        "-S",
+        type=_arg_check_positive,
+        default=2,
+        help=(
+            "Span interval for smoothing the graph, if data frequency is"
+            " very high using increasing this with 'interval' can yield"
+            " smooth graph (default: 2)"
+        ),
+    )
 
     output_group = parser.add_argument_group("Output")
     output_group.add_argument(
@@ -156,9 +172,7 @@ def init_argparse() -> argparse.ArgumentParser:
     parser.add_argument(
         "--quiet", "-q", action="store_true", default=False, help="Run in silent mode"
     )
-    parser.add_argument(
-        "--version", "-v", action='version', version=version_str()
-    )
+    parser.add_argument("--version", "-v", action="version", version=version_str())
     return parser
 
 
